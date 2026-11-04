@@ -17,6 +17,37 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* 懸停間隙時顯示的插入按鈕與線條 */
+    .insert-row-divider {
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      height: 12px;
+      margin-top: -6px;
+      margin-bottom: -6px;
+      position: relative;
+      z-index: 10;
+    }
+    .insert-row-divider:hover {
+      opacity: 1;
+    }
+
+    .insert-col-divider {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      width: 14px;
+      margin-left: -7px;
+      margin-right: -7px;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: stretch;
+    }
+    .insert-col-divider:hover {
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans text-slate-800 pb-20">
@@ -70,11 +101,11 @@
     <section class="mt-6">
       <button 
         onclick="addNewRow()" 
-        class="w-full py-4 border-2 border-dashed border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/50 rounded-2xl flex items-center justify-center text-slate-400 hover:text-indigo-600 transition group cursor-pointer"
+        class="w-full py-4 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 rounded-2xl flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition group cursor-pointer"
         title="新增下一筆行程列"
       >
-        <div class="w-9 h-9 rounded-full bg-slate-200 group-hover:bg-indigo-100 flex items-center justify-center transition">
-          <i class="fa-solid fa-plus text-slate-500 group-hover:text-indigo-600"></i>
+        <div class="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/60 flex items-center justify-center transition">
+          <i class="fa-solid fa-plus text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300"></i>
         </div>
       </button>
     </section>
@@ -82,7 +113,7 @@
 
   <!-- 項目編輯彈出視窗 Modal -->
   <div id="itemModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col transform transition-all">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col transform transition-all border border-slate-200">
       
       <!-- Modal 標題區 -->
       <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
@@ -95,13 +126,13 @@
       </div>
 
       <!-- Modal 表單內文 (可滾動) -->
-      <div class="p-6 space-y-4 overflow-y-auto flex-1 text-sm">
+      <div class="p-6 space-y-4 overflow-y-auto flex-1 text-sm text-slate-700">
 
         <!-- 1. 項目標題 & 顏色選取 -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div class="sm:col-span-3">
             <label class="block text-xs font-semibold text-slate-500 mb-1">項目名稱 / 簡述</label>
-            <input type="text" id="modalTitle" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例：搭乘 航班 TPE - NRT">
+            <input type="text" id="modalTitle" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例：搭乘 航班 TPE - NRT">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">標籤顏色</label>
@@ -116,23 +147,23 @@
         <div>
           <label class="block text-xs font-semibold text-slate-500 mb-1">類別</label>
           <div class="grid grid-cols-5 gap-2">
-            <button type="button" onclick="selectCategory('transport')" id="catBtn-transport" class="cat-btn border rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('transport')" id="catBtn-transport" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-plane text-base"></i>
               <span class="text-xs">交通</span>
             </button>
-            <button type="button" onclick="selectCategory('hotel')" id="catBtn-hotel" class="cat-btn border rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('hotel')" id="catBtn-hotel" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-bed text-base"></i>
               <span class="text-xs">住宿</span>
             </button>
-            <button type="button" onclick="selectCategory('sightseeing')" id="catBtn-sightseeing" class="cat-btn border rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('sightseeing')" id="catBtn-sightseeing" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-camera-retro text-base"></i>
               <span class="text-xs">景點</span>
             </button>
-            <button type="button" onclick="selectCategory('dining')" id="catBtn-dining" class="cat-btn border rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('dining')" id="catBtn-dining" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-utensils text-base"></i>
               <span class="text-xs">用餐</span>
             </button>
-            <button type="button" onclick="selectCategory('other')" id="catBtn-other" class="cat-btn border rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('other')" id="catBtn-other" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-ellipsis text-base"></i>
               <span class="text-xs">自訂</span>
             </button>
@@ -145,7 +176,7 @@
         <div id="fields-transport" class="cat-fields space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">交通工具類型</label>
-            <select id="modalTransportType" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <select id="modalTransportType" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
               <option value="plane">✈️ 飛機</option>
               <option value="bus">🚌 公車 / 巴士</option>
               <option value="car">🚗 汽車 / 開車</option>
@@ -159,16 +190,16 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">預估時間 (幾點到幾點)</label>
-              <input type="text" id="modalTransportTime" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 08:30 - 11:45">
+              <input type="text" id="modalTransportTime" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 08:30 - 11:45">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">總花費時間</label>
-              <input type="text" id="modalTransportDuration" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 3.5 小時">
+              <input type="text" id="modalTransportDuration" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 3.5 小時">
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">班次 / 細節資訊</label>
-            <textarea id="modalTransportDetails" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="輸入班次、時間或路線號碼..."></textarea>
+            <textarea id="modalTransportDetails" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="輸入班次、時間或路線號碼..."></textarea>
           </div>
         </div>
 
@@ -176,39 +207,39 @@
         <div id="fields-hotel" class="cat-fields space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 hidden">
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">飯店 / 住宿名稱</label>
-            <input type="text" id="modalHotelName" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="輸入飯店名稱">
+            <input type="text" id="modalHotelName" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="輸入飯店名稱">
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">住宿總價格</label>
-              <input type="text" id="modalHotelTotalPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: NT$ 12,000">
+              <input type="text" id="modalHotelTotalPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: NT$ 12,000">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">訂房管道 / 方式</label>
-              <input type="text" id="modalHotelBookingMethod" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: Agoda / Booking">
+              <input type="text" id="modalHotelBookingMethod" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: Agoda / Booking">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">已付訂金金額</label>
-              <input type="text" id="modalHotelDeposit" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 已付全額 / 3,000">
+              <input type="text" id="modalHotelDeposit" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 已付全額 / 3,000">
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">官方網址 / 訂房連結</label>
-              <input type="url" id="modalHotelUrl" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://...">
+              <input type="url" id="modalHotelUrl" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://...">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">住址</label>
-              <input type="text" id="modalHotelAddress" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="地址">
+              <input type="text" id="modalHotelAddress" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="地址">
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">如何前往 / 交通指引</label>
-            <input type="text" id="modalHotelAccess" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="從地鐵 3 號出口步行 5 分鐘">
+            <input type="text" id="modalHotelAccess" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="從地鐵 3 號出口步行 5 分鐘">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">住宿備註</label>
-            <input type="text" id="modalHotelNotes" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="如: 入住時間 15:00 後、可寄放行李">
+            <input type="text" id="modalHotelNotes" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="如: 入住時間 15:00 後、可寄放行李">
           </div>
           <!-- 勾選標籤選項 -->
           <div class="flex flex-wrap gap-4 pt-1">
@@ -228,21 +259,21 @@
         <div id="fields-sightseeing" class="cat-fields space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 hidden">
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">必去亮點 / 必玩項目</label>
-            <input type="text" id="modalSpotHighlight" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 晴空塔展望台看夜景、秋葉原動漫街探店">
+            <input type="text" id="modalSpotHighlight" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 晴空塔展望台看夜景、秋葉原動漫街探店">
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">門票費用 (TWD/JPY...)</label>
-              <input type="text" id="modalSpotPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 2,000 日圓 / 免費">
+              <input type="text" id="modalSpotPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 2,000 日圓 / 免費">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">推薦指數 / 備註</label>
-              <input type="text" id="modalSpotRating" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: ★★★★★ 必去">
+              <input type="text" id="modalSpotRating" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: ★★★★★ 必去">
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">參考網址 / 攻略</label>
-            <input type="url" id="modalSpotUrl" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://...">
+            <input type="url" id="modalSpotUrl" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://...">
           </div>
         </div>
 
@@ -250,19 +281,19 @@
         <div id="fields-dining" class="cat-fields space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 hidden">
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">推薦菜單 / 必吃美食</label>
-            <input type="text" id="modalDiningMenu" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 招牌海膽丼、特濃豚骨拉麵">
+            <input type="text" id="modalDiningMenu" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 招牌海膽丼、特濃豚骨拉麵">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">預估價格 / 預算</label>
-            <input type="text" id="modalDiningPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 3,000 日圓/人">
+            <input type="text" id="modalDiningPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 3,000 日圓/人">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">餐廳網址 / 地圖連結</label>
-            <input type="url" id="modalDiningUrl" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://tabelog.com/...">
+            <input type="url" id="modalDiningUrl" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://tabelog.com/...">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">用餐備註</label>
-            <input type="text" id="modalDiningNotes" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 需提前現場排隊、僅收現金">
+            <input type="text" id="modalDiningNotes" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 需提前現場排隊、僅收現金">
           </div>
         </div>
 
@@ -270,7 +301,7 @@
         <div id="fields-other" class="cat-fields space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 hidden">
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">備註說明</label>
-            <textarea id="modalOtherNotes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="填寫自訂備註事項..."></textarea>
+            <textarea id="modalOtherNotes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="填寫自訂備註事項..."></textarea>
           </div>
         </div>
 
@@ -420,34 +451,6 @@
       container.appendChild(addDayBtn);
     }
 
-    // 新增一天
-    function addNewDay() {
-      const nextNum = tripData.days.length + 1;
-      const dayNames = ['第一天', '第二天', '第三天', '第四天', '第五天', '第六天', '第七天', '第八天', '第九天', '第十天'];
-      const nameStr = dayNames[nextNum - 1] || `第 ${nextNum} 天`;
-
-      tripData.days.push({
-        name: nameStr,
-        rows: [
-          [{ id: Date.now().toString(), title: '新行程項目', color: '#ffffff', category: 'other' }]
-        ]
-      });
-      tripData.activeDayIndex = tripData.days.length - 1;
-      renderApp();
-    }
-
-    // 刪除一天
-    function deleteDay(e, dayIdx) {
-      e.stopPropagation();
-      if (confirm(`確定要刪除 ${tripData.days[dayIdx].name} 嗎？`)) {
-        tripData.days.splice(dayIdx, 1);
-        if (tripData.activeDayIndex >= tripData.days.length) {
-          tripData.activeDayIndex = Math.max(0, tripData.days.length - 1);
-        }
-        renderApp();
-      }
-    }
-
     // 2. 渲染當前 Day 的行程列 (Rows & Cards)
     function renderItineraryRows() {
       const container = document.getElementById('itineraryRowsContainer');
@@ -457,13 +460,43 @@
       if (!currentDay || !currentDay.rows) return;
 
       currentDay.rows.forEach((row, rIdx) => {
+
+        // --- 頂部插入列分隔區 (垂直方向插入新行) ---
+        const topRowInsertDivider = document.createElement('div');
+        topRowInsertDivider.className = "insert-row-divider flex items-center justify-center cursor-pointer my-1 group";
+        topRowInsertDivider.title = "在此處插入新行程列";
+        topRowInsertDivider.onclick = () => insertRowAt(rIdx);
+        topRowInsertDivider.innerHTML = `
+          <div class="w-full h-[2px] bg-indigo-300 rounded group-hover:scale-y-125 transition"></div>
+          <div class="absolute bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-md transform group-hover:scale-110 transition">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+        `;
+        container.appendChild(topRowInsertDivider);
+
+        // --- 行程列容器 ---
         const rowEl = document.createElement('div');
-        rowEl.className = "flex flex-wrap items-center gap-3 w-full bg-slate-50/60 p-2 rounded-2xl border border-slate-200/60";
+        rowEl.className = "flex flex-wrap items-center gap-1.5 w-full bg-slate-50/60 p-2 rounded-2xl border border-slate-200/60 relative";
 
         // 渲染該列中的每個卡片 (Item Card)
         row.forEach((item, iIdx) => {
+
+          // 如果不是第一個卡片，在卡片與卡片之間插入水平分隔器 (+)
+          if (iIdx > 0) {
+            const colInsertDivider = document.createElement('div');
+            colInsertDivider.className = "insert-col-divider cursor-pointer group";
+            colInsertDivider.title = "在此處插入平行/備選行程";
+            colInsertDivider.onclick = () => insertItemAtRow(rIdx, iIdx);
+            colInsertDivider.innerHTML = `
+              <div class="w-[2px] h-full bg-indigo-400 rounded"></div>
+              <div class="absolute bg-indigo-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm transform group-hover:scale-125 transition">
+                <i class="fa-solid fa-plus"></i>
+              </div>
+            `;
+            rowEl.appendChild(colInsertDivider);
+          }
+
           const card = document.createElement('div');
-          // 整個卡片設為可點擊 (cursor-pointer) 並加入 hover 動態效果
           card.className = "group relative flex-1 min-w-[220px] flex items-start justify-between p-3.5 rounded-2xl border border-slate-200 shadow-sm transition hover:shadow-md hover:border-indigo-300 cursor-pointer select-none";
           
           // 點擊卡片主體直接開啟編輯 Modal
@@ -506,10 +539,10 @@
           rowEl.appendChild(card);
         });
 
-        // 同一列右側的新增 (+) 按鈕
+        // 同一列右側的末端新增 (+) 按鈕
         const addSameRowBtn = document.createElement('button');
-        addSameRowBtn.className = "w-8 h-8 rounded-xl bg-white hover:bg-indigo-50 border border-slate-300 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition shadow-sm shrink-0 cursor-pointer";
-        addSameRowBtn.title = "在同列增加多個項目選項";
+        addSameRowBtn.className = "w-8 h-8 rounded-xl bg-white hover:bg-indigo-50 border border-slate-300 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition shadow-sm shrink-0 cursor-pointer ml-1";
+        addSameRowBtn.title = "在同列末端增加多個項目選項";
         addSameRowBtn.onclick = () => addItemToRow(rIdx);
         addSameRowBtn.innerHTML = `<i class="fa-solid fa-plus text-xs"></i>`;
 
@@ -620,6 +653,36 @@
       renderApp();
     }
 
+    // 新增天數 (Day)
+    function addNewDay() {
+      const nextDayNum = tripData.days.length + 1;
+      const dayNames = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四", "十五"];
+      const nameStr = nextDayNum <= dayNames.length ? `第${dayNames[nextDayNum - 1]}天` : `第 ${nextDayNum} 天`;
+      
+      tripData.days.push({
+        name: nameStr,
+        rows: [
+          [
+            { id: Date.now().toString(), title: '新行程項目', color: '#ffffff', category: 'other' }
+          ]
+        ]
+      });
+      tripData.activeDayIndex = tripData.days.length - 1;
+      renderApp();
+    }
+
+    // 刪除天數 (Day)
+    function deleteDay(event, index) {
+      event.stopPropagation();
+      if (tripData.days.length <= 1) return;
+
+      tripData.days.splice(index, 1);
+      if (tripData.activeDayIndex >= tripData.days.length) {
+        tripData.activeDayIndex = tripData.days.length - 1;
+      }
+      renderApp();
+    }
+
     // 在同列加入項目 (+)
     function addItemToRow(rIdx) {
       tripData.days[tripData.activeDayIndex].rows[rIdx].push({
@@ -628,6 +691,25 @@
         color: '#ffffff',
         category: 'other'
       });
+      renderApp();
+    }
+
+    // 在指定索引位置插入同行項目
+    function insertItemAtRow(rIdx, targetIndex) {
+      tripData.days[tripData.activeDayIndex].rows[rIdx].splice(targetIndex, 0, {
+        id: Date.now().toString(),
+        title: '新增插入項目',
+        color: '#ffffff',
+        category: 'other'
+      });
+      renderApp();
+    }
+
+    // 在指定索引位置插入全新一整列行程 (Row)
+    function insertRowAt(rIdx) {
+      tripData.days[tripData.activeDayIndex].rows.splice(rIdx, 0, [
+        { id: Date.now().toString(), title: '新行程項目', color: '#ffffff', category: 'other' }
+      ]);
       renderApp();
     }
 
