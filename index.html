@@ -55,9 +55,9 @@
   <!-- 頂部列 Header -->
   <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 shadow-sm">
     <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
-      <!-- 行程名稱編輯欄 -->
-      <div class="flex items-center gap-2 flex-1 min-w-[240px]">
-        <i class="fa-solid fa-map-location-dot text-indigo-600 text-xl"></i>
+      <!-- 行程名稱編輯欄與全行程總金額 -->
+      <div class="flex items-center gap-3 flex-1 min-w-[280px]">
+        <i class="fa-solid fa-map-location-dot text-indigo-600 text-xl shrink-0"></i>
         <input 
           id="tripTitleInput" 
           type="text" 
@@ -66,10 +66,36 @@
           value="東京五天四夜自由行"
           onchange="updateTripTitle(this.value)"
         />
+        <!-- 全行程總預算統計 -->
+        <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-xl shrink-0 text-xs font-bold shadow-sm" title="所有天數行程輸入的費用總計">
+          <i class="fa-solid fa-coins text-emerald-500"></i>
+          <span>行程總預算:</span>
+          <span id="grandTotalDisplay" class="text-emerald-800 text-sm font-extrabold">0</span>
+          <span id="grandTotalCurrencyUnit" class="text-[11px] text-emerald-600 font-semibold">TWD</span>
+          <span id="grandTotalTwdDisplay" class="text-[11px] text-emerald-600 font-normal ml-0.5 hidden">(≈ NT$ 0)</span>
+        </div>
       </div>
 
-      <!-- 右側按鈕區 -->
+      <!-- 右側按鈕區 & 幣別選擇 -->
       <div class="flex items-center gap-2">
+        <!-- 幣別切換與匯率 -->
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+          <i class="fa-solid fa-globe text-slate-500 ml-1"></i>
+          <select id="currencySelect" onchange="changeCurrency(this.value)" class="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:outline-none cursor-pointer">
+            <option value="TWD">TWD (NT$)</option>
+            <option value="JPY">JPY (日圓)</option>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="KRW">KRW (₩)</option>
+            <option value="CNY">CNY (元)</option>
+          </select>
+          <div id="exchangeRateContainer" class="flex items-center gap-1 hidden">
+            <span class="text-slate-400 font-medium">1 JPY =</span>
+            <input type="number" id="exchangeRateInput" step="0.0001" value="0.21" onchange="updateExchangeRate(this.value)" class="w-16 px-1.5 py-0.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold text-slate-700 focus:outline-none" title="換算回台幣 (TWD) 的匯率">
+            <span class="text-slate-500">TWD</span>
+          </div>
+        </div>
+
         <button 
           onclick="exportStandaloneHTML()" 
           class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl shadow-sm hover:shadow transition text-sm cursor-pointer"
@@ -86,9 +112,37 @@
   <main class="max-w-5xl mx-auto px-4 pt-6">
 
     <!-- 天數切換頁籤欄 (Day Nav Bar) -->
-    <section class="mb-6">
+    <section class="mb-4">
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-2" id="dayTabsContainer">
         <!-- 動態產生 Day 橢圓標籤 -->
+      </div>
+    </section>
+
+    <!-- 當前天數與日期顯示區 -->
+    <section class="mb-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span id="currentDayTitle" class="font-bold text-slate-800 text-lg">第一天</span>
+        <span id="currentDayDateDisplay" class="text-xs text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full font-medium border border-indigo-100">未設定日期</span>
+        
+        <!-- 當日費用總計 -->
+        <div class="flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-xl text-xs font-bold shadow-sm" title="當天各項目費用總和">
+          <i class="fa-solid fa-calculator text-amber-500"></i>
+          <span>當日總計:</span>
+          <span id="dayTotalDisplay" class="text-amber-900 font-extrabold text-sm">0</span>
+          <span id="dayTotalCurrencyUnit" class="text-[11px] text-amber-700 font-semibold">TWD</span>
+          <span id="dayTotalTwdDisplay" class="text-[11px] text-amber-700 font-normal ml-0.5 hidden">(≈ NT$ 0)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <label for="dayDatePicker" class="text-xs font-semibold text-slate-500 flex items-center gap-1">
+          <i class="fa-regular fa-calendar-days text-indigo-500"></i> 設定當天日期：
+        </label>
+        <input 
+          type="date" 
+          id="dayDatePicker" 
+          onchange="updateCurrentDayDate(this.value)"
+          class="px-2.5 py-1 text-xs border border-slate-300 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer"
+        >
       </div>
     </section>
 
@@ -101,11 +155,11 @@
     <section class="mt-6">
       <button 
         onclick="addNewRow()" 
-        class="w-full py-4 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 rounded-2xl flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition group cursor-pointer"
+        class="w-full py-4 border-2 border-dashed border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/50 rounded-2xl flex items-center justify-center text-slate-400 hover:text-indigo-600 transition group cursor-pointer"
         title="新增下一筆行程列"
       >
-        <div class="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/60 flex items-center justify-center transition">
-          <i class="fa-solid fa-plus text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300"></i>
+        <div class="w-9 h-9 rounded-full bg-slate-200 group-hover:bg-indigo-100 flex items-center justify-center transition">
+          <i class="fa-solid fa-plus text-slate-500 group-hover:text-indigo-600"></i>
         </div>
       </button>
     </section>
@@ -146,24 +200,28 @@
         <!-- 2. 主分類選取 -->
         <div>
           <label class="block text-xs font-semibold text-slate-500 mb-1">類別</label>
-          <div class="grid grid-cols-5 gap-2">
-            <button type="button" onclick="selectCategory('transport')" id="catBtn-transport" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+          <div class="grid grid-cols-6 gap-1.5">
+            <button type="button" onclick="selectCategory('transport', true)" id="catBtn-transport" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-plane text-base"></i>
               <span class="text-xs">交通</span>
             </button>
-            <button type="button" onclick="selectCategory('hotel')" id="catBtn-hotel" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('hotel', true)" id="catBtn-hotel" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-bed text-base"></i>
               <span class="text-xs">住宿</span>
             </button>
-            <button type="button" onclick="selectCategory('sightseeing')" id="catBtn-sightseeing" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('sightseeing', true)" id="catBtn-sightseeing" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-camera-retro text-base"></i>
               <span class="text-xs">景點</span>
             </button>
-            <button type="button" onclick="selectCategory('dining')" id="catBtn-dining" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('dining', true)" id="catBtn-dining" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-utensils text-base"></i>
               <span class="text-xs">用餐</span>
             </button>
-            <button type="button" onclick="selectCategory('other')" id="catBtn-other" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+            <button type="button" onclick="selectCategory('shopping', true)" id="catBtn-shopping" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
+              <i class="fa-solid fa-bag-shopping text-base"></i>
+              <span class="text-xs">購買</span>
+            </button>
+            <button type="button" onclick="selectCategory('other', true)" id="catBtn-other" class="cat-btn border border-slate-200 rounded-xl py-2 flex flex-col items-center gap-1 transition text-slate-600 hover:bg-slate-50">
               <i class="fa-solid fa-ellipsis text-base"></i>
               <span class="text-xs">自訂</span>
             </button>
@@ -267,13 +325,19 @@
               <input type="text" id="modalSpotPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 2,000 日圓 / 免費">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">推薦指數 / 備註</label>
-              <input type="text" id="modalSpotRating" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: ★★★★★ 必去">
+              <label class="block text-xs font-semibold text-slate-500 mb-1">優先級別 / 推薦星等</label>
+              <div class="flex items-center gap-1 py-1" id="spotStarRatingContainer">
+                <!-- 動態星等按鈕 -->
+              </div>
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">參考網址 / 攻略</label>
             <input type="url" id="modalSpotUrl" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://...">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">景點備註</label>
+            <textarea id="modalSpotNotes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 營業時間 09:00 - 21:00、可提前線上預約門票..."></textarea>
           </div>
         </div>
 
@@ -283,9 +347,17 @@
             <label class="block text-xs font-semibold text-slate-500 mb-1">推薦菜單 / 必吃美食</label>
             <input type="text" id="modalDiningMenu" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 招牌海膽丼、特濃豚骨拉麵">
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">預估價格 / 預算</label>
-            <input type="text" id="modalDiningPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 3,000 日圓/人">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">預估價格 / 預算</label>
+              <input type="text" id="modalDiningPrice" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 3,000 日圓/人">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">優先級別 / 推薦星等</label>
+              <div class="flex items-center gap-1 py-1" id="diningStarRatingContainer">
+                <!-- 動態星等按鈕 -->
+              </div>
+            </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">餐廳網址 / 地圖連結</label>
@@ -293,11 +365,29 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">用餐備註</label>
-            <input type="text" id="modalDiningNotes" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 需提前現場排隊、僅收現金">
+            <textarea id="modalDiningNotes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 需提前現場排隊、僅收現金、每人最低消費一碗麵"></textarea>
           </div>
         </div>
 
-        <!-- E. 自訂通用備註欄位 -->
+        <!-- E. 購買欄位 -->
+        <div id="fields-shopping" class="cat-fields space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">購買地點 / 店家</label>
+              <input type="text" id="modalShoppingLocation" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: Bic Camera、松本清藥妝">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">預算 / 金額</label>
+              <input type="text" id="modalShoppingAmount" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 15,000 日圓 / NT$ 3,000">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">購買項目 / 購物清單</label>
+            <textarea id="modalShoppingItems" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如: 合利他命、吹風機、保養品..."></textarea>
+          </div>
+        </div>
+
+        <!-- F. 自訂通用備註欄位 -->
         <div id="fields-other" class="cat-fields space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 hidden">
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">備註說明</label>
@@ -335,34 +425,58 @@
 
   <!-- 邏輯與資料流 JS -->
   <script>
+    // 各類別預設顏色表 (Default Color Map)
+    const categoryDefaultColors = {
+      transport: '#e0f2fe',  // 淺藍色
+      hotel: '#dcfce7',      // 淺綠色
+      dining: '#f3e8ff',     // 淺粉紫色
+      sightseeing: '#fef9c3', // 淺黃色
+      shopping: '#ffedd5',   // 淺橘色
+      other: '#ffffff'       // 白色
+    };
+
+    // 各幣別預設對 TWD 匯率 (Exchange rates base: TWD)
+    const defaultExchangeRates = {
+      TWD: 1,
+      JPY: 0.21,   // 1 日圓 ≈ 0.21 新台幣
+      USD: 32.0,   // 1 美元 ≈ 32 新台幣
+      EUR: 34.5,   // 1 歐元 ≈ 34.5 新台幣
+      KRW: 0.023,  // 1 韓元 ≈ 0.023 新台幣
+      CNY: 4.45    // 1 人民幣 ≈ 4.45 新台幣
+    };
+
     // 主要應用程式資料架構 (Data Model)
     let tripData = {
       title: "東京自由行熱門規劃",
+      currency: "TWD",
+      customRate: 0.21, // 針對主要外幣 (如 JPY) 對 TWD 的自訂匯率
       activeDayIndex: 0,
       days: [
         {
           name: "第一天",
+          date: "",
           rows: [
             [
               { id: '1', title: '成田機場 - NRT 抵達', color: '#e0f2fe', category: 'transport', transportType: 'plane', transportTime: '08:30 - 12:45', transportDuration: '3小時15分', transportDetails: '航班 BR198 12:45 抵達' }
             ],
             [
-              { id: '2', title: '搭乘 Skyliner 到上野', color: '#fef3c7', category: 'transport', transportType: 'train', transportTime: '13:30 - 14:15', transportDuration: '45分鐘', transportDetails: '車程約 41 分鐘' }
+              { id: '2', title: '搭乘 Skyliner 到上野', color: '#e0f2fe', category: 'transport', transportType: 'train', transportTime: '13:30 - 14:15', transportDuration: '45分鐘', transportDetails: '車程約 41 分鐘' }
             ],
             [
               { id: '3', title: '飯店 Check-in', color: '#dcfce7', category: 'hotel', hotelName: '上野 Candeo Hotel', hotelTotalPrice: 'NT$ 16,000', hotelBookingMethod: 'Agoda', hotelDeposit: '已付全額', hotelPaid: true, hotelBreakfast: true }
             ],
             [
-              { id: '4', title: '阿美橫丁吃拉麵', color: '#fee2e2', category: 'dining', diningMenu: '特濃鴨湯拉麵', diningPrice: '1,200日圓' },
-              { id: '5', title: '備選: 燒肉特餐', color: '#f3e8ff', category: 'dining', diningMenu: 'A5 和牛盛合', diningPrice: '3,500日圓' }
+              { id: '4', title: '阿美橫丁吃拉麵', color: '#f3e8ff', category: 'dining', diningMenu: '特濃鴨湯拉麵', diningPrice: '1,200日圓', rating: 5 },
+              { id: '5', title: '備選: 燒肉特餐', color: '#f3e8ff', category: 'dining', diningMenu: 'A5 和牛盛合', diningPrice: '3,500日圓', rating: 4 }
             ]
           ]
         },
         {
           name: "第二天",
+          date: "",
           rows: [
             [
-              { id: '6', title: '東京晴空塔觀景', color: '#fce7f3', category: 'sightseeing', spotHighlight: '晴空塔 450F 天望回廊夜景', spotPrice: '2,700日圓', spotRating: '★★★★★' }
+              { id: '6', title: '東京晴空塔觀景', color: '#fef9c3', category: 'sightseeing', spotHighlight: '晴空塔 450F 天望回廊夜景', spotPrice: '2,700日圓', rating: 5 }
             ]
           ]
         }
@@ -375,7 +489,8 @@
       rowIndex: null,
       itemIndex: null,
       tempImageBase64: null,
-      selectedCategory: 'transport'
+      selectedCategory: 'transport',
+      currentRating: 0
     };
 
     // 初始化讀取 LocalStorage 或使用預設
@@ -389,8 +504,51 @@
         }
       }
       document.getElementById('tripTitleInput').value = tripData.title || "行程名稱";
+      if (!tripData.currency) tripData.currency = 'TWD';
+      if (!tripData.customRate) tripData.customRate = defaultExchangeRates[tripData.currency] || 1;
+
+      document.getElementById('currencySelect').value = tripData.currency;
+      updateCurrencyRateUI();
+
       renderApp();
     };
+
+    // 切換全域幣別
+    function changeCurrency(newCurrency) {
+      tripData.currency = newCurrency;
+      if (defaultExchangeRates[newCurrency] !== undefined) {
+        tripData.customRate = defaultExchangeRates[newCurrency];
+      }
+      updateCurrencyRateUI();
+      renderApp();
+    }
+
+    // 更新自訂匯率
+    function updateExchangeRate(val) {
+      const rate = parseFloat(val);
+      if (!isNaN(rate) && rate > 0) {
+        tripData.customRate = rate;
+        renderApp();
+      }
+    }
+
+    // 更新匯率輸入介面顯示狀態
+    function updateCurrencyRateUI() {
+      const container = document.getElementById('exchangeRateContainer');
+      const rateInput = document.getElementById('exchangeRateInput');
+      const cur = tripData.currency || 'TWD';
+
+      if (cur === 'TWD') {
+        container.classList.add('hidden');
+      } else {
+        container.classList.remove('hidden');
+        container.querySelector('span').innerText = `1 ${cur} =`;
+        rateInput.value = tripData.customRate || defaultExchangeRates[cur] || 1;
+      }
+
+      document.getElementById('grandTotalCurrencyUnit').innerText = cur;
+      document.getElementById('dayTotalCurrencyUnit').innerText = cur;
+    }
 
     // 儲存資料到 LocalStorage
     function saveData() {
@@ -403,11 +561,167 @@
       saveData();
     }
 
+    // 更新當前天數的日期
+    function updateCurrentDayDate(dateVal) {
+      const currentDay = tripData.days[tripData.activeDayIndex];
+      if (currentDay) {
+        currentDay.date = dateVal;
+        renderHeaderDateInfo();
+        saveData();
+      }
+    }
+
     // 主渲染流程
     function renderApp() {
       renderDayTabs();
+      renderHeaderDateInfo();
       renderItineraryRows();
+      calculateTotals();
       saveData();
+    }
+
+    // 計算當日總金額與全行程總金額（統一換算為當前選定幣別）
+    function calculateTotals() {
+      let grandTotalInTargetCurrency = 0;
+      let currentDayTotalInTargetCurrency = 0;
+      let grandTotalInTWD = 0;
+      let currentDayTotalInTWD = 0;
+
+      const targetCurrency = tripData.currency || 'TWD';
+
+      tripData.days.forEach((day, dIdx) => {
+        let dayTotalInTarget = 0;
+        let dayTotalInTWD = 0;
+
+        if (day.rows) {
+          day.rows.forEach(row => {
+            row.forEach(item => {
+              const amounts = getItemAmounts(item, targetCurrency);
+
+              dayTotalInTarget += amounts.targetAmount;
+              dayTotalInTWD += amounts.twdAmount;
+            });
+          });
+        }
+
+        if (dIdx === tripData.activeDayIndex) {
+          currentDayTotalInTargetCurrency = dayTotalInTarget;
+          currentDayTotalInTWD = dayTotalInTWD;
+        }
+
+        grandTotalInTargetCurrency += dayTotalInTarget;
+        grandTotalInTWD += dayTotalInTWD;
+      });
+
+      // 格式化顯示 (加上千分位號)
+      document.getElementById('dayTotalDisplay').innerText = currentDayTotalInTargetCurrency > 0 ? Math.round(currentDayTotalInTargetCurrency).toLocaleString() : '0';
+      document.getElementById('grandTotalDisplay').innerText = grandTotalInTargetCurrency > 0 ? Math.round(grandTotalInTargetCurrency).toLocaleString() : '0';
+
+      // 換算台幣 (NT$) 顯示控制
+      const dayTwdEl = document.getElementById('dayTotalTwdDisplay');
+      const grandTwdEl = document.getElementById('grandTotalTwdDisplay');
+
+      if (targetCurrency !== 'TWD') {
+        dayTwdEl.innerText = `(≈ NT$ ${Math.round(currentDayTotalInTWD).toLocaleString()})`;
+        grandTwdEl.innerText = `(≈ NT$ ${Math.round(grandTotalInTWD).toLocaleString()})`;
+        dayTwdEl.classList.remove('hidden');
+        grandTwdEl.classList.remove('hidden');
+      } else {
+        dayTwdEl.classList.add('hidden');
+        grandTwdEl.classList.add('hidden');
+      }
+    }
+
+    // 解析文字中的金額與原生幣別，並精確計算目標幣別與對應台幣金額
+    function getItemAmounts(item, targetCurrency) {
+      let rawStr = '';
+
+      if (item.category === 'hotel') {
+        rawStr = item.hotelTotalPrice || '';
+      } else if (item.category === 'sightseeing') {
+        rawStr = item.spotPrice || '';
+      } else if (item.category === 'dining') {
+        rawStr = item.diningPrice || '';
+      } else if (item.category === 'shopping') {
+        rawStr = item.shoppingAmount || '';
+      }
+
+      if (!rawStr) return { targetAmount: 0, twdAmount: 0 };
+
+      // 1. 提取純數字
+      const match = rawStr.replace(/,/g, '').match(/(\d+(\.\d+)?)/);
+      if (!match) return { targetAmount: 0, twdAmount: 0 };
+      const numValue = parseFloat(match[0]);
+
+      // 2. 自動判斷原始輸入字串的幣別
+      let detectedCurrency = targetCurrency;
+      const upperStr = rawStr.toUpperCase();
+
+      if (upperStr.includes('日圓') || upperStr.includes('日幣') || upperStr.includes('JPY') || upperStr.includes('円') || upperStr.includes('¥')) {
+        detectedCurrency = 'JPY';
+      } else if (upperStr.includes('NT') || upperStr.includes('TWD') || upperStr.includes('台幣')) {
+        detectedCurrency = 'TWD';
+      } else if (upperStr.includes('USD') || upperStr.includes('$')) {
+        detectedCurrency = 'USD';
+      } else if (upperStr.includes('EUR') || upperStr.includes('€')) {
+        detectedCurrency = 'EUR';
+      } else if (upperStr.includes('KRW') || upperStr.includes('₩') || upperStr.includes('韓元')) {
+        detectedCurrency = 'KRW';
+      } else if (upperStr.includes('CNY') || upperStr.includes('RMB') || upperStr.includes('人民幣')) {
+        detectedCurrency = 'CNY';
+      }
+
+      // 3. 換算成台幣 (TWD) 金額
+      let twdAmount = numValue;
+      if (detectedCurrency === 'JPY') {
+        twdAmount = numValue * (tripData.customRate || defaultExchangeRates.JPY);
+      } else if (detectedCurrency !== 'TWD') {
+        twdAmount = numValue * (defaultExchangeRates[detectedCurrency] || 1);
+      }
+
+      // 4. 計算目標幣別金額
+      let targetAmount = numValue;
+      if (detectedCurrency !== targetCurrency) {
+        if (targetCurrency === 'TWD') {
+          targetAmount = twdAmount;
+        } else if (targetCurrency === 'JPY') {
+          const rateToTwd = tripData.customRate || defaultExchangeRates.JPY;
+          targetAmount = rateToTwd > 0 ? twdAmount / rateToTwd : twdAmount;
+        } else {
+          const rateToTwd = defaultExchangeRates[targetCurrency] || 1;
+          targetAmount = rateToTwd > 0 ? twdAmount / rateToTwd : twdAmount;
+        }
+      }
+
+      return { targetAmount, twdAmount };
+    }
+
+    // 主渲染流程
+    function renderApp() {
+      renderDayTabs();
+      renderHeaderDateInfo();
+      renderItineraryRows();
+      calculateTotals();
+      saveData();
+    }
+
+    // 渲染日期資訊
+    function renderHeaderDateInfo() {
+      const currentDay = tripData.days[tripData.activeDayIndex];
+      if (!currentDay) return;
+
+      document.getElementById('currentDayTitle').innerText = currentDay.name || '天數';
+      
+      const dateDisplay = document.getElementById('currentDayDateDisplay');
+      const datePicker = document.getElementById('dayDatePicker');
+      
+      if (currentDay.date) {
+        dateDisplay.innerText = currentDay.date;
+        datePicker.value = currentDay.date;
+      } else {
+        dateDisplay.innerText = "未設定日期";
+        datePicker.value = "";
+      }
     }
 
     // 1. 渲染天數頁籤 (Day Navigation)
@@ -430,10 +744,13 @@
           renderApp();
         };
 
+        const dateSub = day.date ? `<span class="text-[10px] opacity-80 font-normal">(${day.date.slice(5)})</span>` : '';
+
         tabBtn.innerHTML = `
           <span>${day.name}</span>
+          ${dateSub}
           ${tripData.days.length > 1 ? `
-            <button onclick="deleteDay(event, ${index})" class="opacity-0 group-hover:opacity-100 transition w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/20 text-xs">
+            <button onclick="deleteDay(event, ${index})" class="opacity-0 group-hover:opacity-100 transition w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/20 text-xs ml-0.5">
               <i class="fa-solid fa-xmark"></i>
             </button>
           ` : ''}
@@ -508,6 +825,9 @@
           // 分類對應圖示
           const catIcon = getCategoryIcon(item.category, item.transportType);
           
+          // 檢查是否有網址連結
+          const itemUrl = getItemUrl(item);
+
           // 根據類別組合卡片上要預覽顯示的核心細節內容 (Key Highlights)
           const detailHtml = getCardDetailSummary(item);
 
@@ -524,8 +844,15 @@
               ${detailHtml ? `<div class="mt-1 text-xs text-slate-600 space-y-0.5">${detailHtml}</div>` : ''}
             </div>
 
-            <!-- 控制按鈕區 (色塊選取 / 刪除) -->
+            <!-- 控制按鈕區 (網址按鈕 / 色塊選取 / 刪除) -->
             <div class="flex items-center gap-1.5 shrink-0 self-start pt-0.5" onclick="event.stopPropagation()">
+              ${itemUrl ? `
+                <a href="${escapeHtml(itemUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-2.5 py-1 rounded-lg shadow-sm transition transform hover:scale-105" title="開啟連結：${escapeHtml(itemUrl)}">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                  <span>前往網頁</span>
+                </a>
+              ` : ''}
+
               <!-- Color Picker 即時選擇 -->
               <input type="color" value="${item.color || '#ffffff'}" onchange="quickChangeColor(${rIdx}, ${iIdx}, this.value)" class="w-5 h-5 rounded-md border-0 p-0 cursor-pointer bg-transparent" title="快速變更顏色" onclick="event.stopPropagation()">
 
@@ -590,34 +917,45 @@
           lines.push(`<div class="text-[11px] text-slate-500">${tags.join(' • ')}</div>`);
         }
       }
-
-      // C. 景點：必去亮點、門票、評價
+      // C. 景點：必去亮點、門票、星等
       else if (item.category === 'sightseeing') {
         if (item.spotHighlight) {
           lines.push(`<div class="font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60 inline-block"><i class="fa-solid fa-star mr-1 text-amber-500"></i>亮點: ${escapeHtml(item.spotHighlight)}</div>`);
         }
         const spotMeta = [];
         if (item.spotPrice) spotMeta.push(`門票: ${escapeHtml(item.spotPrice)}`);
-        if (item.spotRating) spotMeta.push(escapeHtml(item.spotRating));
+        if (item.rating) spotMeta.push(`<span class="text-amber-500 font-bold">${'★'.repeat(item.rating)}</span>`);
+        if (item.spotNotes) spotMeta.push(escapeHtml(item.spotNotes));
         if (spotMeta.length > 0) {
           lines.push(`<div class="text-slate-500">${spotMeta.join(' | ')}</div>`);
         }
       }
 
-      // D. 用餐：推薦菜單、價格、備註
+      // D. 用餐：推薦菜單、價格、星等、備註
       else if (item.category === 'dining') {
         if (item.diningMenu) {
           lines.push(`<div class="font-medium text-rose-700"><i class="fa-solid fa-bowl-food mr-1 text-rose-500"></i>推薦: ${escapeHtml(item.diningMenu)}</div>`);
         }
-        if (item.diningPrice || item.diningNotes) {
-          const diningMeta = [];
-          if (item.diningPrice) diningMeta.push(escapeHtml(item.diningPrice));
-          if (item.diningNotes) diningMeta.push(escapeHtml(item.diningNotes));
+        const diningMeta = [];
+        if (item.diningPrice) diningMeta.push(escapeHtml(item.diningPrice));
+        if (item.rating) diningMeta.push(`<span class="text-amber-500 font-bold">${'★'.repeat(item.rating)}</span>`);
+        if (item.diningNotes) diningMeta.push(escapeHtml(item.diningNotes));
+        if (diningMeta.length > 0) {
           lines.push(`<div class="text-slate-500">${diningMeta.join(' • ')}</div>`);
         }
       }
 
-      // E. 自訂
+      // E. 購買：地點、金額、購買項目
+      else if (item.category === 'shopping') {
+        if (item.shoppingLocation || item.shoppingAmount) {
+          lines.push(`<div class="font-medium text-amber-800"><i class="fa-solid fa-store mr-1 text-amber-600"></i>${escapeHtml(item.shoppingLocation || '')} ${item.shoppingAmount ? `<span class="bg-amber-100/80 text-amber-900 px-1.5 py-0.2 rounded text-[10px] ml-1">${escapeHtml(item.shoppingAmount)}</span>` : ''}</div>`);
+        }
+        if (item.shoppingItems) {
+          lines.push(`<div class="text-slate-500 truncate"><i class="fa-solid fa-basket-shopping mr-1 text-[10px]"></i>${escapeHtml(item.shoppingItems)}</div>`);
+        }
+      }
+
+      // F. 自訂
       else if (item.category === 'other') {
         if (item.otherNotes) {
           lines.push(`<div class="text-slate-500 truncate">${escapeHtml(item.otherNotes)}</div>`);
@@ -625,6 +963,14 @@
       }
 
       return lines.join('');
+    }
+
+    // 取得項目中設定的網址連結
+    function getItemUrl(item) {
+      if (item.category === 'hotel' && item.hotelUrl) return item.hotelUrl;
+      if (item.category === 'sightseeing' && item.spotUrl) return item.spotUrl;
+      if (item.category === 'dining' && item.diningUrl) return item.diningUrl;
+      return null;
     }
 
     // 取得類別對應 FontAwesome 圖示
@@ -644,6 +990,7 @@
       if (cat === 'hotel') return '<i class="fa-solid fa-bed"></i>';
       if (cat === 'sightseeing') return '<i class="fa-solid fa-camera-retro"></i>';
       if (cat === 'dining') return '<i class="fa-solid fa-utensils"></i>';
+      if (cat === 'shopping') return '<i class="fa-solid fa-bag-shopping"></i>';
       return '<i class="fa-solid fa-location-dot"></i>';
     }
 
@@ -661,9 +1008,10 @@
       
       tripData.days.push({
         name: nameStr,
+        date: "",
         rows: [
           [
-            { id: Date.now().toString(), title: '新行程項目', color: '#ffffff', category: 'other' }
+            { id: Date.now().toString(), title: '新行程項目', color: categoryDefaultColors.other, category: 'other' }
           ]
         ]
       });
@@ -688,7 +1036,7 @@
       tripData.days[tripData.activeDayIndex].rows[rIdx].push({
         id: Date.now().toString(),
         title: '備選 / 同步項目',
-        color: '#ffffff',
+        color: categoryDefaultColors.other,
         category: 'other'
       });
       renderApp();
@@ -699,7 +1047,7 @@
       tripData.days[tripData.activeDayIndex].rows[rIdx].splice(targetIndex, 0, {
         id: Date.now().toString(),
         title: '新增插入項目',
-        color: '#ffffff',
+        color: categoryDefaultColors.other,
         category: 'other'
       });
       renderApp();
@@ -708,7 +1056,17 @@
     // 在指定索引位置插入全新一整列行程 (Row)
     function insertRowAt(rIdx) {
       tripData.days[tripData.activeDayIndex].rows.splice(rIdx, 0, [
-        { id: Date.now().toString(), title: '新行程項目', color: '#ffffff', category: 'other' }
+        { id: Date.now().toString(), title: '新行程項目', color: categoryDefaultColors.other, category: 'other' }
+      ]);
+      renderApp();
+    }
+
+    // 在下方新增一整列行程
+    function addNewRow() {
+      const currentDay = tripData.days[tripData.activeDayIndex];
+      if (!currentDay) return;
+      currentDay.rows.push([
+        { id: Date.now().toString(), title: '新行程項目', color: categoryDefaultColors.other, category: 'other' }
       ]);
       renderApp();
     }
@@ -776,14 +1134,22 @@
       // Sightseeing
       document.getElementById('modalSpotHighlight').value = item.spotHighlight || '';
       document.getElementById('modalSpotPrice').value = item.spotPrice || '';
-      document.getElementById('modalSpotRating').value = item.spotRating || '';
       document.getElementById('modalSpotUrl').value = item.spotUrl || '';
+      document.getElementById('modalSpotNotes').value = item.spotNotes || '';
 
       // Dining
       document.getElementById('modalDiningMenu').value = item.diningMenu || '';
       document.getElementById('modalDiningPrice').value = item.diningPrice || '';
       document.getElementById('modalDiningUrl').value = item.diningUrl || '';
       document.getElementById('modalDiningNotes').value = item.diningNotes || '';
+
+      // Shopping
+      document.getElementById('modalShoppingLocation').value = item.shoppingLocation || '';
+      document.getElementById('modalShoppingAmount').value = item.shoppingAmount || '';
+      document.getElementById('modalShoppingItems').value = item.shoppingItems || '';
+
+      // 設定星等
+      setRating(item.rating || 0);
 
       // Other
       document.getElementById('modalOtherNotes').value = item.otherNotes || '';
@@ -799,8 +1165,13 @@
     }
 
     // 分類選擇切換
-    function selectCategory(cat) {
+    function selectCategory(cat, isUserClick = false) {
       editingContext.selectedCategory = cat;
+
+      // 如果是使用者在 Modal 內點擊切換類別，自動套用該類別預設顏色
+      if (isUserClick && categoryDefaultColors[cat]) {
+        document.getElementById('modalColor').value = categoryDefaultColors[cat];
+      }
 
       // 更新按鈕高亮
       document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -839,18 +1210,42 @@
     }
 
     function updateImagePreview() {
-      const container = document.getElementById('imagePreviewContainer');
-      const img = document.getElementById('imagePreview');
+      const previewContainer = document.getElementById('imagePreviewContainer');
+      const previewImg = document.getElementById('imagePreview');
       const removeBtn = document.getElementById('removeImgBtn');
 
       if (editingContext.tempImageBase64) {
-        img.src = editingContext.tempImageBase64;
-        container.classList.remove('hidden');
+        previewImg.src = editingContext.tempImageBase64;
+        previewContainer.classList.remove('hidden');
         removeBtn.classList.remove('hidden');
       } else {
-        img.src = '';
-        container.classList.add('hidden');
+        previewImg.src = '';
+        previewContainer.classList.add('hidden');
         removeBtn.classList.add('hidden');
+      }
+    }
+
+    // 設定星等選擇器 UI
+    function setRating(val) {
+      editingContext.currentRating = val;
+      renderStarRatingUI('spotStarRatingContainer', val);
+      renderStarRatingUI('diningStarRatingContainer', val);
+    }
+
+    function renderStarRatingUI(containerId, activeRating) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('button');
+        star.type = 'button';
+        star.className = `text-lg transition transform hover:scale-110 cursor-pointer ${
+          i <= activeRating ? 'text-amber-400' : 'text-slate-300 hover:text-amber-200'
+        }`;
+        star.innerHTML = '<i class="fa-solid fa-star"></i>';
+        star.onclick = () => setRating(i === editingContext.currentRating ? 0 : i);
+        container.appendChild(star);
       }
     }
 
@@ -863,6 +1258,7 @@
       item.color = document.getElementById('modalColor').value;
       item.category = editingContext.selectedCategory;
       item.imageBase64 = editingContext.tempImageBase64;
+      item.rating = editingContext.currentRating;
 
       // Transport
       item.transportType = document.getElementById('modalTransportType').value;
@@ -886,14 +1282,19 @@
       // Sightseeing
       item.spotHighlight = document.getElementById('modalSpotHighlight').value;
       item.spotPrice = document.getElementById('modalSpotPrice').value;
-      item.spotRating = document.getElementById('modalSpotRating').value;
       item.spotUrl = document.getElementById('modalSpotUrl').value;
+      item.spotNotes = document.getElementById('modalSpotNotes').value;
 
       // Dining
       item.diningMenu = document.getElementById('modalDiningMenu').value;
       item.diningPrice = document.getElementById('modalDiningPrice').value;
       item.diningUrl = document.getElementById('modalDiningUrl').value;
       item.diningNotes = document.getElementById('modalDiningNotes').value;
+
+      // Shopping
+      item.shoppingLocation = document.getElementById('modalShoppingLocation').value;
+      item.shoppingAmount = document.getElementById('modalShoppingAmount').value;
+      item.shoppingItems = document.getElementById('modalShoppingItems').value;
 
       // Other
       item.otherNotes = document.getElementById('modalOtherNotes').value;
